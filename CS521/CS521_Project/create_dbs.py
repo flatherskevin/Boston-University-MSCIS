@@ -1,3 +1,10 @@
+"""
+Author: Kevin Flathers
+Date Created: 02/14/2017
+Date Last Edited: 02/19/2017
+Course: CS521
+"""
+
 import sqlite3
 
 
@@ -25,9 +32,9 @@ stocks_db = sqlite3.connect(stocks_db_path)
 stocks_cursor = stocks_db.cursor()
 
 stocks_cursor.execute("""
-    CREATE TABLE IF NOT EXISTS baseball_stats(
-        ticker TEXT PRIMARY KEY,
-        company_name TEXT,
+    CREATE TABLE IF NOT EXISTS stock_stats(
+        company_name TEXT PRIMARY KEY,
+        ticker TEXT,
         country TEXT,
         price REAL,
         exchange_rate REAL,

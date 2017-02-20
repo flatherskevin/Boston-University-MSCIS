@@ -1,7 +1,7 @@
 """
 Author: Kevin Flathers
 Date Created: 02/09/2017
-Date Last Edited: 02/13/2017
+Date Last Edited: 02/19/2017
 Course: CS521
 
 The purpose of this file is to provide multiple classes that assist
@@ -14,6 +14,8 @@ as to what each class does is given within the respective class.
 
 import csv
 import os
+import sqlite3
+import collections
 
 class AbstractRecord:
     """
@@ -297,18 +299,96 @@ class StockCSVReader(AbstractCSVReader):
         return StockStatRecord(return_row['ticker'], return_row['company_name'], return_row['exchange_country'], return_row['price'], return_row['exchange_rate'], return_row['shares_outstanding'], return_row['net_income'], return_row['market_value_usd'], return_row['pe_ratio'])
 
 
+
+class AbstractDAO:
+    """
+    Generic DAO class to be inherited
+    """
+    db_name = ""
+
+    def insert_records(self, records):
+        raise NotImplementedError
+
+    def select_all(self):
+        raise NotImplementedError
+
+    def connect(self):
+        return sqlite3.connect(self.db_name)
+
+
+class BaseballStatsDAO(AbstractDAO):
+    """
+    DAO for baseball statistics
+    """
+    db_name = './baseball.db'
+
+    def insert_records(self, records):
+        current_db = self.connect()
+        cursor = current_db.cursor()
+        for record in records:
+            cursor.execute("""
+                INSERT INTO baseball_stats (player_name, game_played, average, salary)
+                VALUES(?, ?, ?, ?)
+            """, (record.name, record.g, record.avg, record.salary))
+        current_db.commit()
+        current_db.close()
+
+    def select_all(self):
+        current_db = self.connect()
+        cursor = current_db.cursor()
+        records = collections.deque()
+        cursor.execute("""
+            SELECT * FROM baseball_stats
+        """)
+        for record in cursor:
+            records.append(BaseballStatRecord(*record))
+        current_db.close()
+        return records
+
+
+class StocksDAO(AbstractDAO):
+    """
+    DAO for stocks
+    """
+    db_name = './stocks.db'
+
+    def insert_records(self, records):
+        current_db = self.connect()
+        cursor = current_db.cursor()
+        for record in records:
+            cursor.execute("""
+                INSERT INTO stock_stats (ticker, company_name, country, price, exchange_rate, shares_outstanding, net_income, market_value, pe_ratio)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (record.name, record.company_name, record.exchange_country, record.price, record.exchange_rate, record.shares_outstanding, record.net_income, record.market_value_usd, record.pe_ratio))
+        current_db.commit()
+        current_db.close()
+
+    def select_all(self):
+        current_db = self.connect()
+        cursor = current_db.cursor()
+        records = collections.deque()
+        cursor.execute("""
+            SELECT * FROM stock_stats
+        """)
+        for record in cursor:
+            records.append(StockStatRecord(*record))
+        current_db.close()
+        return records
+
+
 # Custom exception to handle record creation
 class BadData(Exception):
     pass
 
-# Print all stock records to the console
-stocks = StockCSVReader('./StockValuations.csv')
-for item in stocks.load():
+# Loads all stock records into stocks.db
+stocks_records = StockCSVReader('./StockValuations.csv')
+stocks_DAO = StocksDAO()
+# stocks_DAO.insert_records(stocks_records.load())
+is_all = stocks_DAO.select_all()
+for item in is_all:
     print(item)
 
-print("\n<><><><><><><><><><><><><><><><><><><><><><><>\n")
-
-# Print all stock records to the console
-stocks = BaseballCSVReader('./MLB2008.csv')
-for item in stocks.load():
-    print(item)
+# Loads all baseball records into baseball.db
+# baseball_records = BaseballCSVReader('./MLB2008.csv')
+# baseball_DAO = BaseballStatsDAO()
+# baseball_DAO.insert_records(baseball_records.load())
