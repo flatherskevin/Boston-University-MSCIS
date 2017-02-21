@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="14261774-c9fa-45db-9386-246fc2bef65d" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part1.py" afterPath="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part1.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part1.py" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CS521/CS521_Project/baseball.db" afterPath="$PROJECT_DIR$/CS521/CS521_Project/baseball.db" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CS521/CS521_Project/stocks.db" afterPath="$PROJECT_DIR$/CS521/CS521_Project/stocks.db" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CS521/CS521_Project/create_dbs.py" afterPath="$PROJECT_DIR$/CS521/CS521_Project/create_dbs.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,13 +20,13 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Flathers_Kevin_Project_Part1.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part1.py">
+      <file leaf-file-name="Flathers_Kevin_Project_Part2.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
-              <caret line="431" column="32" lean-forward="true" selection-start-line="431" selection-start-column="32" selection-end-line="431" selection-end-column="32" />
+            <state relative-caret-position="54">
+              <caret line="3" column="23" lean-forward="false" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
               <folding>
-                <element signature="e#329#339#0" expanded="true" />
+                <element signature="e#509#519#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -33,8 +35,8 @@
       <file leaf-file-name="create_dbs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CS521/CS521_Project/create_dbs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="774">
-              <caret line="43" column="18" lean-forward="false" selection-start-line="43" selection-start-column="18" selection-end-line="43" selection-end-column="18" />
+            <state relative-caret-position="54">
+              <caret line="3" column="23" lean-forward="false" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -55,10 +57,10 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part2.py" />
-        <option value="$PROJECT_DIR$/CS521/CS521_Project/create_dbs.py" />
         <option value="$PROJECT_DIR$/CS521/CS521_Project/test.py" />
         <option value="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part1.py" />
+        <option value="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part2.py" />
+        <option value="$PROJECT_DIR$/CS521/CS521_Project/create_dbs.py" />
       </list>
     </option>
   </component>
@@ -158,7 +160,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="BU MSCIS" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -345,9 +347,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="52" width="1024" height="716" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25974026" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25974026" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919255" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36956522" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -398,18 +400,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/CS521/CS521_Project/create_dbs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="774">
-          <caret line="43" column="18" lean-forward="false" selection-start-line="43" selection-start-column="18" selection-end-line="43" selection-end-column="18" />
+        <state relative-caret-position="54">
+          <caret line="3" column="23" lean-forward="false" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part1.py">
+    <entry file="file://$PROJECT_DIR$/CS521/CS521_Project/Flathers_Kevin_Project_Part2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="431" column="32" lean-forward="true" selection-start-line="431" selection-start-column="32" selection-end-line="431" selection-end-column="32" />
+        <state relative-caret-position="54">
+          <caret line="3" column="23" lean-forward="false" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
           <folding>
-            <element signature="e#329#339#0" expanded="true" />
+            <element signature="e#509#519#0" expanded="true" />
           </folding>
         </state>
       </provider>
