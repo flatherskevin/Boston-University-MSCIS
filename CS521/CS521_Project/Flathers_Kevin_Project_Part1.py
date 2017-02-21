@@ -46,12 +46,12 @@ class StockStatRecord(AbstractRecord):
         self.name = name
         self.company_name = company_name
         self.exchange_country = exchange_country
-        self.price = round(price, 2)
-        self.exchange_rate = round(exchange_rate, 2)
-        self.shares_outstanding = round(shares_outstanding, 2)
-        self.net_income = round(net_income, 2)
-        self.market_value_usd = round(market_value_usd, 2)
-        self.pe_ratio = round(pe_ratio, 2)
+        self.price = price
+        self.exchange_rate = exchange_rate
+        self.shares_outstanding = shares_outstanding
+        self.net_income = net_income
+        self.market_value_usd = market_value_usd
+        self.pe_ratio = pe_ratio
 
     def __str__(self):
         """
@@ -59,7 +59,7 @@ class StockStatRecord(AbstractRecord):
 
         :return: object string
         """
-        return "{type}({name}, {company_name}, {exchange_country}, {price}, {exchange_rate}, {shares_outstanding}, {net_income}, {market_value_usd}, {pe_ratio})".format(type=self.__class__.__name__, name=self.name, company_name=self.company_name, exchange_country=self.exchange_country, price=self.price, exchange_rate=self.exchange_rate, shares_outstanding=self.shares_outstanding, net_income=self.net_income, market_value_usd=self.market_value_usd, pe_ratio=self.pe_ratio)
+        return "{type}({name}, {company_name}, {exchange_country}, {price}, {exchange_rate}, {shares_outstanding}, {net_income}, {market_value_usd}, {pe_ratio})".format(type=self.__class__.__name__, name=self.name, company_name=self.company_name, exchange_country=self.exchange_country, price=round(self.price, 2), exchange_rate=round(self.exchange_rate, 2), shares_outstanding=round(self.shares_outstanding, 2), net_income=round(self.net_income, 2), market_value_usd=round(self.market_value_usd, 2), pe_ratio=round(self.pe_ratio, 2))
 
 
 class BaseballStatRecord(AbstractRecord):
@@ -76,9 +76,9 @@ class BaseballStatRecord(AbstractRecord):
         :param avg: batting average
         """
         self.name = name
-        self.salary = round(salary, 2)
+        self.salary = salary
         self.g = g
-        self.avg = round(avg, 2)
+        self.avg = avg
 
     def __str__(self):
         """
@@ -86,7 +86,7 @@ class BaseballStatRecord(AbstractRecord):
 
         :return: object string
         """
-        return "{type}({name}, {salary}, {g}, {avg})".format(type=self.__class__.__name__, name=self.name, salary=self.salary, g=self.g, avg=self.avg)
+        return "{type}({name}, {salary}, {g}, {avg})".format(type=self.__class__.__name__, name=self.name, salary=round(self.salary, 2), g=self.g, avg=round(self.avg, 2))
 
 
 class AbstractCSVReader:
@@ -327,9 +327,9 @@ class BaseballStatsDAO(AbstractDAO):
         cursor = current_db.cursor()
         for record in records:
             cursor.execute("""
-                INSERT INTO baseball_stats (player_name, game_played, average, salary)
+                INSERT INTO baseball_stats (player_name, salary, game_played, average)
                 VALUES(?, ?, ?, ?)
-            """, (record.name, record.g, record.avg, record.salary))
+            """, (record.name, record.salary, record.g, record.avg))
         current_db.commit()
         current_db.close()
 
@@ -341,7 +341,7 @@ class BaseballStatsDAO(AbstractDAO):
             SELECT * FROM baseball_stats
         """)
         for record in cursor:
-            records.append(BaseballStatRecord(*record))
+            records.append(BaseballStatRecord(record[0], record[3], record[1], record[2]))
         current_db.close()
         return records
 
@@ -380,15 +380,67 @@ class StocksDAO(AbstractDAO):
 class BadData(Exception):
     pass
 
+print('\n<> <> <> <> <> <> <> <> <> <>')
+print('\nRESULTS:  STOCKS\n')
+print('<> <> <> <> <> <> <> <> <> <>\n')
 # Loads all stock records into stocks.db
 stocks_records = StockCSVReader('./StockValuations.csv')
 stocks_DAO = StocksDAO()
-# stocks_DAO.insert_records(stocks_records.load())
-is_all = stocks_DAO.select_all()
-for item in is_all:
-    print(item)
+
+try:
+    stocks_DAO.insert_records(stocks_records.load())
+except Exception as err:
+    print(err)
+
+all_stocks = stocks_DAO.select_all()
+unique_exchange_country_list = []
+exchange_country_tickers_dict = {}
+for item in all_stocks:
+    if item.exchange_country not in unique_exchange_country_list:
+        unique_exchange_country_list.append(item.exchange_country)
+
+for item in unique_exchange_country_list:
+    count = 0
+    for sub_item in all_stocks:
+        if sub_item.exchange_country == item:
+            count += 1
+    exchange_country_tickers_dict[item] = count
+
+for item in exchange_country_tickers_dict:
+    print('{item} has {count} total tickers'.format(item=item, count=exchange_country_tickers_dict[item]))
+
+
+print('\n<> <> <> <> <> <> <> <> <> <>')
+print('\nRESULTS:  BASEBALL\n')
+print('<> <> <> <> <> <> <> <> <> <>\n')
+
 
 # Loads all baseball records into baseball.db
-# baseball_records = BaseballCSVReader('./MLB2008.csv')
-# baseball_DAO = BaseballStatsDAO()
-# baseball_DAO.insert_records(baseball_records.load())
+baseball_records = BaseballCSVReader('./MLB2008.csv')
+baseball_DAO = BaseballStatsDAO()
+
+try:
+    baseball_DAO.insert_records(baseball_records.load())
+except Exception as err:
+    print(err)
+
+all_baseball = baseball_DAO.select_all()
+unique_avg_list = []
+avg_salary_dict = {}
+for item in all_baseball:
+    if round(item.avg, 3) not in unique_avg_list:
+        unique_avg_list.append(round(item.avg, 3))
+
+for item in unique_avg_list:
+    count = 0
+    salary_sum = 0
+    for sub_item in all_baseball:
+        if sub_item.avg == item:
+            count += 1
+            salary_sum += sub_item.salary
+    average_salary = salary_sum / count
+    avg_salary_dict[item] = float(format(average_salary, '.2f'))
+
+for item in avg_salary_dict:
+    print('{item} batting average has and average salary of ${count}'.format(item=item, count=avg_salary_dict[item]))
+
