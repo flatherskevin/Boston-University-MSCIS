@@ -1,7 +1,7 @@
 """
 Author: Kevin Flathers
 Date Created: 02/14/2017
-Date Last Edited: 02/19/2017
+Date Last Edited: 02/20/2017
 Course: CS521
 
 File simply to create a stocks database and baseball database,
