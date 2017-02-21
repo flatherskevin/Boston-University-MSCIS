@@ -4,10 +4,8 @@ Date Created: 02/09/2017
 Date Last Edited: 02/19/2017
 Course: CS521
 
-The purpose of this file is to provide multiple classes that assist
-in the reading, validating, parsing, and returning of data from CSV
-files. The requirements for exactly what this file must do can be seen
-in the attached file, CS521_Project_Part1.docx. Further explanation
+The requirements for exactly what this file must do can be seen
+in the attached files: CS521_Project_Part1.docx and CS521_Project_Part2.docx. Further explanation
 as to what each class does is given within the respective class.
 """
 
@@ -189,33 +187,32 @@ class BaseballCSVReader(AbstractCSVReader):
         # Loop through all important columns
         for key in important_keys:
 
-            # Begin error handling
-            try:
-                # Check that key column exists
-                if key in row:
+            # Check that key column exists
+            if key in row:
 
-                    # Check that key value is not blank
-                    if row[key] not in (None, ""):
+                # Check that key value is not blank
+                if row[key] not in (None, ""):
 
-                        # If the key is meant to be a string, add it to the dictionary
-                        if key in 'PLAYER':
-                            return_row[key] = row[key]
+                    # If the key is meant to be a string, add it to the dictionary
+                    if key in 'PLAYER':
+                        return_row[key] = row[key]
 
-                        # If the key is meant to be a float, test that it can be converted
-                        # into a numeric, round it two decimals, and add it to the dictionary
-                        # Raise a BadData error if string cannot be converted
-                        elif key in ('SALARY', 'G', 'AVG'):
-                            try:
-                                float(row[key])
-                            except Exception as err:
-                                raise BadData("{key} cannot convert to a float".format(key=row[key]))
-                            return_row[key] = round(float(row[key]), 2)
-                    else:
-                        raise BadData("Empty cell in {key} column".format(key=key))
+                    # If the key is meant to be a float, test that it can be converted
+                    # into a numeric, round it two decimals, and add it to the dictionary
+                    # Raise a BadData error if string cannot be converted
+                    elif key in ('SALARY', 'G', 'AVG'):
+                        try:
+                            float(row[key])
+                        except Exception as err:
+                            raise BadData("{key} cannot convert to a float".format(key=row[key]))
+                            return None
+                        return_row[key] = round(float(row[key]), 2)
                 else:
-                    raise BadData("{key} column does not exist".format(key=key))
-            except BadData as err:
-                print(err)
+                    raise BadData("Empty cell in {key} column".format(key=key))
+                    return None
+            else:
+                raise BadData("{key} column does not exist".format(key=key))
+                return None
 
         # Return the dictionary as a record using BaseballStatRecord object
         return BaseballStatRecord(return_row['PLAYER'], return_row['SALARY'], return_row['G'], return_row['AVG'])
@@ -242,57 +239,54 @@ class StockCSVReader(AbstractCSVReader):
         # Loop through all important columns
         for key in important_keys:
 
-            # Begin error handling
-            try:
+            # Check that key column exists
+            if key in row:
 
-                # Check that key column exists
-                if key in row:
+                # Check that key value is not blank
+                if row[key] not in (None, ""):
 
-                    # Check that key value is not blank
-                    if row[key] not in (None, ""):
+                    # If the key is meant to be a string, add it to the dictionary
+                    if key in ('ticker', 'company_name', 'exchange_country'):
+                        return_row[key] = row[key]
 
-                        # If the key is meant to be a string, add it to the dictionary
-                        if key in ('ticker', 'company_name', 'exchange_country'):
-                            return_row[key] = row[key]
+                    # If the key is meant to be a float, test that it can be converted
+                    # into a numeric, round it two decimals, and add it to the dictionary
+                    # Raise a BadData error if string cannot be converted
+                    elif key in ('price', 'exchange_rate', 'shares_outstanding'):
+                        try:
+                            float(row[key])
+                        except Exception:
+                            raise BadData("{key} cannot convert to a float".format(key=row[key]))
+                            return None
+                        return_row[key] = round(float(row[key]), 2)
 
-                        # If the key is meant to be a float, test that it can be converted
-                        # into a numeric, round it two decimals, and add it to the dictionary
-                        # Raise a BadData error if string cannot be converted
-                        elif key in ('price', 'exchange_rate', 'shares_outstanding'):
-                            try:
-                                float(row[key])
-                            except Exception:
-                                raise BadData("{key} cannot convert to a float".format(key=row[key]))
+                    # If the key is meant to be a float, test that it can be converted
+                    # into a numeric, round it two decimals, and add it to the dictionary
+                    # Raise a BadData error if string cannot be converted or if net income is 0
+                    elif key is 'net_income':
+                        try:
+                            float(row[key])
+                        except Exception:
+                            raise BadData("{key} cannot convert to a float".format(key=row[key]))
+                        if row[key] is 0:
+                            raise BadData("Net Income cannot be 0")
+                        else:
                             return_row[key] = round(float(row[key]), 2)
-
-                        # If the key is meant to be a float, test that it can be converted
-                        # into a numeric, round it two decimals, and add it to the dictionary
-                        # Raise a BadData error if string cannot be converted or if net income is 0
-                        elif key is 'net_income':
-                            try:
-                                float(row[key])
-                            except Exception:
-                                raise BadData("{key} cannot convert to a float".format(key=row[key]))
-                            if row[key] is 0:
-                                raise BadData("Net Income cannot be 0")
-                            else:
-                                return_row[key] = round(float(row[key]), 2)
-                    else:
-                        raise BadData("Empty cell in {key} column".format(key=key))
-
-                # Calculate market_value_usd
-                elif key is 'market_value_usd':
-                    market_value_usd = return_row['price'] * return_row['exchange_rate'] * return_row['shares_outstanding']
-                    return_row[key] = round(market_value_usd, 2)
-
-                # Calculate pe_ratio
-                elif key is 'pe_ratio':
-                    pe_ratio = return_row['price'] * return_row['shares_outstanding'] / return_row['net_income']
-                    return_row[key] = round(pe_ratio, 2)
                 else:
-                    raise BadData("{key} column does not exist".format(key=key))
-            except BadData as err:
-                print(err)
+                    raise BadData("Empty cell in {key} column".format(key=key))
+                    return None
+
+            # Calculate market_value_usd
+            elif key is 'market_value_usd':
+                market_value_usd = return_row['price'] * return_row['exchange_rate'] * return_row['shares_outstanding']
+                return_row[key] = round(market_value_usd, 2)
+
+            # Calculate pe_ratio
+            elif key is 'pe_ratio':
+                pe_ratio = return_row['price'] * return_row['shares_outstanding'] / return_row['net_income']
+                return_row[key] = round(pe_ratio, 2)
+            else:
+                raise BadData("{key} column does not exist".format(key=key))
                 return None
 
         # Return the dictionary as a record using StockStatRecord object
