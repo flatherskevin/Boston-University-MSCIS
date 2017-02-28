@@ -16,9 +16,10 @@ run create_dbs.py, and then run this file. That will result in the cleanest data
 import csv
 import os
 import queue
+import threading
 
-stocks_rows = queue.Queue
-stocks_records = queue.Queue
+stocks_rows = queue.Queue()
+stocks_records = queue.Queue()
 
 class AbstractRecord:
     """
@@ -63,34 +64,6 @@ class StockStatRecord(AbstractRecord):
         :return: object string
         """
         return "{type}({name}, {company_name}, {exchange_country}, {price}, {exchange_rate}, {shares_outstanding}, {net_income}, {market_value_usd}, {pe_ratio})".format(type=self.__class__.__name__, name=self.name, company_name=self.company_name, exchange_country=self.exchange_country, price=round(self.price, 2), exchange_rate=round(self.exchange_rate, 2), shares_outstanding=round(self.shares_outstanding, 2), net_income=round(self.net_income, 2), market_value_usd=round(self.market_value_usd, 2), pe_ratio=round(self.pe_ratio, 2))
-
-
-class BaseballStatRecord(AbstractRecord):
-    """
-    Inherits AbstractRecord class. Creates an object with properties of a baseball player
-    """
-    def __init__(self, name, salary, g, avg):
-        """
-        Constructor for BaseBallStatRecord class
-
-        :param name: player name
-        :param salary: player salary
-        :param g: games played
-        :param avg: batting average
-        """
-        self.name = name
-        self.salary = salary
-        self.g = g
-        self.avg = avg
-
-    def __str__(self):
-        """
-        Re-write in accordance with Project guidelines
-
-        :return: object string
-        """
-        return "{type}({name}, {salary}, {g}, {avg})".format(type=self.__class__.__name__, name=self.name, salary=round(self.salary, 2), g=self.g, avg=round(self.avg, 2))
-
 
 class AbstractCSVReader:
     """
@@ -169,59 +142,6 @@ class AbstractCSVReader:
                 except NotImplementedError as err:
                     print(err)
         return dictionary_list
-
-
-class BaseballCSVReader(AbstractCSVReader):
-    """
-    Class specifically for reading the baseball CSV. Inherits AbstractCSVReader class.
-    """
-
-    def row_to_record(self, row):
-        """
-        Overwrites row_to_record
-
-        :param row: unvalidated an unparsed dictionary
-        :return: validated and parsed record
-        """
-        # Establish what columns are important to look at
-        important_keys = ['PLAYER', 'SALARY', 'G', 'AVG']
-
-        # Initialize a clean dictionary to add validated and parsed data to
-        return_row = {}
-
-        # Loop through all important columns
-        for key in important_keys:
-
-            # Check that key column exists
-            if key in row:
-
-                # Check that key value is not blank
-                if row[key] not in (None, ""):
-
-                    # If the key is meant to be a string, add it to the dictionary
-                    if key in 'PLAYER':
-                        return_row[key] = row[key]
-
-                    # If the key is meant to be a float, test that it can be converted
-                    # into a numeric, round it two decimals, and add it to the dictionary
-                    # Raise a BadData error if string cannot be converted
-                    elif key in ('SALARY', 'G', 'AVG'):
-                        try:
-                            float(row[key])
-                        except Exception as err:
-                            raise BadData("{key} cannot convert to a float".format(key=row[key]))
-                            return None
-                        return_row[key] = float(row[key])
-                else:
-                    raise BadData("Empty cell in {key} column".format(key=key))
-                    return None
-            else:
-                raise BadData("{key} column does not exist".format(key=key))
-                return None
-
-        # Return the dictionary as a record using BaseballStatRecord object
-        return BaseballStatRecord(return_row['PLAYER'], return_row['SALARY'], return_row['G'], return_row['AVG'])
-
 
 class StockCSVReader(AbstractCSVReader):
     """
@@ -303,7 +223,7 @@ class Runnable:
         while True:
             try:
                 queue_item = stocks_rows.get(timeout=1)
-                print("{worker_id} is working hard!!".format(worker_id=id()))
+                print("{worker_id} is working hard!!".format(worker_id=id(queue_item)))
 
                  # Call on row_to_record to validate and parse the row
                 new_record = self.row_to_record(queue_item)
@@ -311,7 +231,7 @@ class Runnable:
                 # If the record is returned as None, then the data was not valid and BadData error is raised
                 # Otherwise, append the validated and parsed row to the list of records
                 if not(new_record is None):
-                    stocks_records.put(new_record)
+                    stocks_records.put(item=new_record)
                 else:
                     raise BadData("Bad data in record")
 
@@ -389,10 +309,73 @@ class Runnable:
         return StockStatRecord(return_row['ticker'], return_row['company_name'], return_row['exchange_country'], return_row['price'], return_row['exchange_rate'], return_row['shares_outstanding'], return_row['net_income'], return_row['market_value_usd'], return_row['pe_ratio'])
 
 
+class FastStocksCSVReader:
+    def __init__(self, path):
+        """
+        Constructor for AbstractCSVReader class
 
+        :param path: path to CSV file, ./exampl/example.csv
+        """
 
+        # Ensure path exists
+        try:
+            if os.path.exists(path):
+                self.path = path
+            else:
+                raise OSError("{path} does not exist".format(path=path))
+        except OSError as err:
+            print(err)
+            self.path = "./"
+
+    def load(self):
+        """
+        Loads the data from the CSV (one row at a time), calls on row_to_record method to handle validation
+        and parsing or each row, and passes valid rows, as dictionaries, to a list.
+
+        :return: list of validated and parsed dictionaries from the rows of the CSV file
+        """
+
+        # Open the CSV file in read-only format
+        with open(self.path, 'r') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+
+            # Establish the column headers
+            header_row = next(csv_reader)
+
+            # Loop through every row in the CSV file
+            for row in csv_reader:
+
+                # Initialize a blank dictionary for the row and a column counter
+                row_dictionary = {}
+                column = 0
+
+                # Insert records into the dictionary with the corresponding header column being the key
+                for item in row:
+                    row_dictionary[header_row[column]] = item
+                    column += 1
+                stocks_rows.put(row_dictionary)
+
+        threads = []
+
+        for item in range(0, 4):
+            new_thread = threading.Thread(target=Runnable())
+            new_thread.start()
+            threads.append(new_thread)
+
+        for item in threads:
+            item.join()
+
+        dictionary_list = list(stocks_records.queue)
+
+        return dictionary_list
 
 
 # Custom exception to handle record creation
 class BadData(Exception):
     pass
+
+
+stock_record_list = FastStocksCSVReader('./StockValuations.csv').load()
+
+for record in stock_record_list:
+    print(record.__str__())
